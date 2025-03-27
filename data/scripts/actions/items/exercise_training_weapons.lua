@@ -47,42 +47,39 @@ local function leaveExerciseTraining(playerId, targetItem)
 	if player then
 		player:setTraining(false)
 		if targetItem then
-			targetItem:actor(false)
+			--targetItem:actor(false)
 		end
 	end
 	return
 end
 
 local function exerciseTrainingEvent(playerId, tilePosition, weaponId, dummyId)
-	local player = Player(playerId)
-	if not player then
-		return leaveExerciseTraining(playerId)
-	end
+    local player = Player(playerId)
+    if not player then
+        return leaveExerciseTraining(playerId)
+    end
 
-	local targetItem = Tile(tilePosition):getItemById(dummyId)
-	if not targetItem then
-		player:sendTextMessage(MESSAGE_FAILURE, "Someone has moved the dummy, the training has stopped.")
-		leaveExerciseTraining(playerId, targetItem)
-		return false
-	end
+    local targetItem = Tile(tilePosition):getItemById(dummyId)
+    if not targetItem then
+        player:sendTextMessage(MESSAGE_FAILURE, "Someone has moved the dummy, the training has stopped.")
+        return leaveExerciseTraining(playerId, targetItem)
+    end
 
-	if player:isTraining() == 0 then
-		player:sendTextMessage(MESSAGE_FAILURE, "You have stopped training.")
-		return leaveExerciseTraining(playerId, targetItem)
-	end
+    if player:isTraining()== 0 then
+        player:sendTextMessage(MESSAGE_FAILURE, "You have stopped training.")
+        return leaveExerciseTraining(playerId, targetItem)
+    end
 
-	local playerPosition = player:getPosition()
-	if not playerPosition:isProtectionZoneTile() then
-		player:sendTextMessage(MESSAGE_FAILURE, "You are no longer in a protection zone, the training has stopped.")
-		leaveExerciseTraining(playerId)
-		return false
-	end
+    local playerPosition = player:getPosition()
+    if not playerPosition:isProtectionZoneTile() then
+        player:sendTextMessage(MESSAGE_FAILURE, "You are no longer in a protection zone, the training has stopped.")
+        return leaveExerciseTraining(playerId)
+    end
 
-	if player:getItemCount(weaponId) <= 0 then
-		player:sendTextMessage(MESSAGE_FAILURE, "You need the training weapon in the backpack, the training has stopped.")
-		leaveExerciseTraining(playerId, targetItem)
-		return false
-	end
+    if player:getItemCount(weaponId) <= 0 then
+        player:sendTextMessage(MESSAGE_FAILURE, "You need the training weapon in the backpack, the training has stopped.")
+        return leaveExerciseTraining(playerId, targetItem)
+    end
 
 	local weapon = player:getItemById(weaponId, true)
 	if not weapon:isItem() or not weapon:hasAttribute(ITEM_ATTRIBUTE_CHARGES) then
@@ -148,7 +145,7 @@ function exerciseTraining.onUse(player, item, fromPosition, target, toPosition, 
 	if targetItem and isDummy(targetId) then
 		if _G.OnExerciseTraining[playerId] then
 			player:sendTextMessage(MESSAGE_FAILURE, "You are already training!")
-			return true
+			return false
 		end
 
 		local playerPos = player:getPosition()
@@ -194,7 +191,8 @@ function exerciseTraining.onUse(player, item, fromPosition, target, toPosition, 
 		if not _G.OnExerciseTraining[playerId].event then
 			_G.OnExerciseTraining[playerId].event = addEvent(exerciseTrainingEvent, 0, playerId, targetPos, item.itemid, targetId)
 			_G.OnExerciseTraining[playerId].dummyPos = targetPos
-			targetItem:actor(true)
+
+			--targetItem:actor(true)
 			player:setTraining(true)
 			player:setExhaustion("training-exhaustion", exhaustionTime)
 			player:sendTextMessage(MESSAGE_EVENT_ADVANCE, "You have started training on an exercise dummy.")
